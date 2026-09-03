@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pizza Rush, les tests</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="icone.svg" type="image/svg+xml" />
+  </head>
+  <body class="page-tests">
+    <header class="barre">
+      <div class="dedans">
+        <a class="marque" href="index.html">Pizza Rush</a>
+        <nav>
+          <a href="index.html">Le sujet</a>
+          <a href="demonstration.html">La demonstration</a>
+          <a href="jeu.html">Le jeu</a>
+          <a href="tests.html" aria-current="page">Les tests</a>
+          <a href="verifier.html">Verifier mon code</a>
+        </nav>
+      </div>
+    </header>
+
+    <div class="page">
+      <header class="entete">
+        <h1>Les tests</h1>
+        <p class="sous-titre">
+          Les 43 tests fournis, relancés à chaque rechargement de la page. Le premier test rouge est
+          votre prochaine étape : son message donne la valeur attendue et la valeur obtenue. La même
+          chose en console avec <code>npm test</code>, et la méthode de travail en section 5 du
+          <a href="index.html">sujet</a>.
+        </p>
+      </header>
+
+      <section class="panneau">
+        <div id="bilan" class="bilan">Chargement en cours.</div>
+        <div id="resultats" class="resultats"></div>
+      </section>
+
+      <footer class="pied">
+        <span>Pizza Rush</span>
+        <span><a href="index.html">Le sujet</a> · <a href="demonstration.html">La demonstration</a> ·
+          <a href="jeu.html">Le jeu</a> · <a href="tests.html">Les tests</a> · <a href="verifier.html">Verifier mon code</a></span>
+        <span>43 tests, 4 etapes</span>
+      </footer>
+    </div>
+
+    <script type="module">
+      import { lancer, decrireErreur } from "./tests/mini.js";
+      import "./tests/test_1_modeles.js";
+      import "./tests/test_2_algos.js";
+      import "./tests/test_3_jeu.js";
+      import "./tests/test_4_les_votres.js";
+
+      const bilan = document.querySelector("#bilan");
+      const resultats = document.querySelector("#resultats");
+      let derniereSuite = null;
+
+      const rapport = await lancer((r) => {
+        if (r.suite !== derniereSuite) {
+          const titre = document.createElement("div");
+          titre.className = "suite-titre";
+          titre.textContent = r.suite;
+          resultats.append(titre);
+          derniereSuite = r.suite;
+        }
+        const ligne = document.createElement("div");
+        ligne.className = "test " + (r.ok ? "ok" : "ko");
+        const etat = document.createElement("span");
+        etat.className = "etat";
+        etat.textContent = r.ok ? "ok" : "KO";
+        ligne.append(etat, document.createTextNode(r.nom));
+        if (!r.ok) {
+          const message = document.createElement("span");
+          message.className = "message";
+          message.textContent = decrireErreur(r.erreur);
+          ligne.append(message);
+        }
+        resultats.append(ligne);
+      });
+
+      const tous = rapport.flatMap((s) => s.resultats);
+      const rates = tous.filter((r) => !r.ok);
+      if (rates.length === 0) {
+        bilan.className = "bilan tout-vert";
+        bilan.textContent = `${tous.length} tests, tout est vert.`;
+      } else {
+        bilan.className = "bilan des-rouges";
+        bilan.textContent = `${rates.length} rate(s) sur ${tous.length}. Prochaine etape : ${rates[0].nom}`;
+      }
+    </script>
+  </body>
+</html>
